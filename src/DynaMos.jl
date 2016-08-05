@@ -7,13 +7,18 @@ module DynaMos
 
 using SymPy
 using ImmutableArrays
+using Parameters
 import Base.prepend!
-import SymPy.subs
+import SymPy.subs, SymPy.symbols
 
-export Body, Body2D, ground2D, core_pos_2D, AddTimeDependence
+export Body, Body2D, ground2D
+export core_pos_2D, AddTimeDependence
+export DynaMo, DynaMo2D, DynaMo3D
+
 # Define time
 t = symbols("t",nonnegative=true,real=true)
 
+abstract DynaMo
 abstract Body
 
 include("util.jl")
@@ -21,6 +26,7 @@ include("core.jl")
 include("timederiv.jl")
 include("ground.jl")
 include("Body2D.jl")
-include("Body3D.jl")
+# include("Body3D.jl")
+# include("DynaMo2D.jl")
 
 end # module

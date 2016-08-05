@@ -1,3 +1,11 @@
+function statesyms(x::Array{ASCIIString,1})
+  y = zeros(Sym,length(x))
+  for i in eachindex(x)
+    y[i] = symbols(x[i],real=true)
+  end
+  return y
+end
+
 """
 Create variables that are functions of time.  Used to define the positional DOF of a body.
 """
@@ -105,20 +113,40 @@ function timederiv(x::Array{SymPy.Sym})
   dxdt = diff(x,t)
 end
 
+"""
+Take time derivative of x, where subdiffout specifies what symbols in x depend on time.
+Also replace the time derivatives of subdiffout with the symbols in subin.
+
+For example if you have a variable x that depends on time, this looks for x,
+replaces it with x(t), take the derivative which produces expressions like:
+Derivative(x(t),t), which then are replaced with the symbol defined in subin,
+for example vx.
+
+julia> @syms x vx
+julia> pos = x^2
+julia> vel = timederiv(pos,x,vx)
+2*x*vx
+"""
 function timederiv(x::Array{SymPy.Sym},subdiffout::Array{SymPy.Sym,1},subin::Array{SymPy.Sym,1})
   if length(subdiffout) != length(subin)
     error("subdiffout and subin must have same dimensions")
   end
 
+  # Make subdiffout depend on time
+  subdiffoutT = AddTimeDependence(subdiffout)
+  x = subs(x,subdiffout,subdiffoutT)
+
+  # Take derivative
   dxdt = timederiv(x)
 
   # Substitute deriviative of subdiffout for diffin
-  diffout = diff(subdiffout,t)
+  diffout = diff(subdiffoutT,t)
   for i in diffout
-    dxdt = subs(dxdt,diffout[i],diffin[i])
+    dxdt = subs(dxdt,diffout[i],subin[i])
   end
 
-  return dxdt
+  # remove time dependence
+  return dxdt = subs(dxdt,subdiffoutT,subdiffout)
 end
 
 function timederiv(x::Array{SymPy.Sym},body::Body)
@@ -127,12 +155,14 @@ function timederiv(x::Array{SymPy.Sym},body::Body)
   return timederiv(x,[body.q, body.u],[body.u,body.a])
 end
 
-# function subs(x::ImmutableArrays.ImmutableArray,subin,subout,oargs...)
-#   y = Vector(length(x))
-#   for i in eachindex(x)
-#     y[i] = subs(x[i],subin,subout,oargs...)
-#   end
-# end
+
+function subs(x,subin::Array,subout::Array)
+  y = deepcopy(x)
+  for i in eachindex(subin)
+    y = subs(y,subin[i],subout[i])
+  end
+  return y
+end
 
 # function timederiv(x::Array{SymPy.Sym},m::model)
 #

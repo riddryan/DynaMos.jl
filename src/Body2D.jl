@@ -10,6 +10,7 @@ angleoffset::Sym
 position::Vector2{Sym}
 velocity::Vector2{Sym}
 angle::Sym
+angularvelocity::Sym
 mass::Sym
 inertia::Sym
 end
@@ -32,9 +33,9 @@ function Body2D(name::ASCIIString,parent::Body,
   # q = AddTimeDependence(core_pos_2D[connection])
   # u = AddTimeDependence(core_vel_2D[connection])
   # a = AddTimeDependence(core_acc_2D[connection])
-  q = core_pos_2D[connection]
-  u = core_vel_2D[connection]
-  a = core_acc_2D[connection]
+  q = statesyms(core_pos_2D[connection])
+  u = statesyms(core_vel_2D[connection])
+  a = statesyms(core_acc_2D[connection])
 
   return Body2D(name,parent,connection,q,u,a)
 end
@@ -83,16 +84,17 @@ function Body2D(name::ASCIIString,parent::Body,
   # Differentiate position w.r.t. time to get velocities and set derivative of
   # q to be equal to u (by definition).  We first use AddTimeDependence so that
   # timederiv knows that the velocity states (u) are the derivatives of the position states (q)
-  velocity = timederiv(AddTimeDependence(position),q,u)
-  return Body2D(name,parent,connection,q,u,a,L,A,Vector2(position),Vector2(velocity),angle)
+  velocity = timederiv(position,q,u)
+  angularvelocity = timederiv(angle,q,u)
+  return Body2D(name,parent,connection,q,u,a,L,A,Vector2(position),Vector2(velocity),angle,angularvelocity)
 end
 
 function Body2D(name::ASCIIString,parent::Body,
   connection::ASCIIString,q::Vector{Sym},u::Vector{Sym},a::Vector{Sym},
-  L::Sym,A::Sym,position::Vector2{Sym},velocity::Vector2{Sym},angle::Sym)
+  L::Sym,A::Sym,position::Vector2{Sym},velocity::Vector2{Sym},angle::Sym,angularvelocity::Sym)
 
-  mass = symbols("m_"*name,positive=true,real=true)
-  inertia = symbols("I_"*name,positive=true,real=true)
+  mass = symbols("m_"*name,nonnegative=true,real=true)
+  inertia = symbols("I_"*name,nonnegative=true,real=true)
 
   return Body2D(name,parent,connection,q,u,a,L,A,position,velocity,angle,mass,inertia)
 end
