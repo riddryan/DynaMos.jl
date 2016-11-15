@@ -8,23 +8,29 @@ ground has infinite mass an infinite inertia.
 There are 2D & 3D types (ground2D & ground3D)
 """
 immutable ground2D <: Body
-  position::Vector2{Sym}
-  velocity::Vector2{Sym}
-  mass::Sym
-  inertia::Sym
+  position::SymFloat
+  velocity::SymFloat
+  mass::SymFloat
+  inertia::SymFloat
 end
 
 immutable ground3D <: Body
-  position::Vector3{Sym}
-  velocity::Vector3{Sym}
-  mass::Sym
-  inertia::Matrix3x3{Sym}
+  position::SymFloat
+  velocity::SymFloat
+  mass::SymFloat
+  inertia::SymFloat
 end
 
 function ground2D()
-  return ground2D(zeros(Sym,2),zeros(Sym,2),Sym(Inf),Sym(Inf))
+  g = ground2D(zeros(SymFloat,2),
+  zeros(SymFloat,2),
+  SymFloat(Sym("mground"),Inf),
+  SymFloat(Sym("Iground"),Inf))
+
+  return g
 end
 
 function ground3D()
-  return ground3D(zeros(Sym,3),zeros(Sym,3),Sym(Inf),Sym(diagM([Inf,Inf,Inf])))
+  I = Sym("Iground")
+  return ground3D(zeros(SymFloat,3),zeros(SymFloat,3),SymFloat(Sym("mground"),Inf),SymFloat(diagM([I,I,I]),diagM([Inf,Inf,Inf])))
 end

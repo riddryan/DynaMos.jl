@@ -10,6 +10,11 @@ Defines how body moves relative to its parent. OPTIONS:
 """
 
 abstract connection2
+
+function values{T<:connection2}(x::T)
+  A = fieldnames(x)
+  tuple([x.(A[i]) for i in eachindex(A)]...)
+end
 """
 Body free to translate in x & y, rotate in z.
 """

@@ -2,26 +2,22 @@ type SymFloat
 sym::Vector{Sym}
 val::Vector{Float64}
 end
-function SymFloat(name::ASCIIString)
-  SymFloat([Sym(name)])
-end
-function SymFloat(var::Sym)
-  SymFloat([var])
-end
-function SymFloat(sym::Array{Sym})
-  SymFloat(sym,zeros(Float64,size(sym)))
-end
+SymFloat(name::ASCIIString) = SymFloat([Sym(name)])
+SymFloat(var::Sym) = SymFloat([var])
+SymFloat(sym::Array{Sym}) = SymFloat(sym,zeros(Float64,size(sym)))
+SymFloat{T<:Real}(num::T) = SymFloat(Sym(num))
+# SymFloat(num::Int64) = SymFloat(Sym(num))
+SymFloat{T<:Real}(M::Array{T}) = SymFloat(Sym(M))
+getindex(A::SymFloat,inds...) = SymFloat(A.sym[inds...],A.val[inds...])
 
-function convert(::Type{SymFloat},x::Sym)
-  x = SymFloat(x)
-end
-function convert(::Type{SymFloat},x::ASCIIString)
-  x = SymFloat(x)
-end
-function convert(::Type{SymFloat},x::Array{Sym})
-  x = SymFloat(x)
-end
+convert(::Type{SymFloat},x::ASCIIString) = SymFloat(x)
+convert(::Type{SymFloat},x::Sym) = SymFloat(x)
+convert(::Type{SymFloat},x::Array{Sym}) = SymFloat(x)
 
-function getindex(A::SymFloat,inds...)
-  SymFloat(A.sym[inds...],A.val[inds...])
-end
+zeros(::Type{SymFloat},d...) = SymFloat(zeros(Sym,d...))
+
+size(x::SymFloat) = size(x.val)
+length(x::SymFloat) = length(x.val)
+
+convert{T<:Real}(::Type{Array{T,1}}, x::T) = [x]
+convert(::Type{Array{Sym,1}},x::Sym) = [x]

@@ -8,7 +8,8 @@ module DynaMos
 using SymPy
 using ImmutableArrays
 using Parameters
-import Base.prepend!, Base.*, Base.getindex, Base.convert
+import Base.prepend!, Base.*, Base.getindex, Base.convert, Base.zeros
+import Base.size
 import SymPy.subs, SymPy.symbols
 
 export Body, Body2D, ground2D

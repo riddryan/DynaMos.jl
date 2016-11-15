@@ -48,12 +48,13 @@ function Body2D(name::ASCIIString,parent::Body,
   connection::connection2)
   c = connection
 
-  return Body2D(name,parent,c,c.q,c.u,c.a,c.L.c.A)
+  return Body2D(name,parent,c,c.q,c.u,c.a,c.L,c.A,c.position,c.velocity,
+  c.angle,c.angularvelocity)
 end
 
 function Body2D(name::ASCIIString,parent::Body,
-  connection::ASCIIString,q::Vector{Sym},u::Vector{Sym},a::Vector{Sym},
-  L::Sym,A::Sym,position::Vector2{Sym},velocity::Vector2{Sym},angle::Sym,angularvelocity::Sym)
+  connection::connection2,q::SymFloat,u::SymFloat,a::SymFloat,
+  L::SymFloat,A::SymFloat,position::SymFloat,velocity::SymFloat,angle::SymFloat,angularvelocity::SymFloat)
 
   mass = SymFloat(symbols("m_"*name,nonnegative=true,real=true))
   inertia = SymFloat(symbols("I_"*name,nonnegative=true,real=true))
