@@ -8,7 +8,7 @@ module DynaMos
 using SymPy
 using ImmutableArrays
 using Parameters
-import Base.prepend!
+import Base.prepend!, Base.*, Base.getindex, Base.convert
 import SymPy.subs, SymPy.symbols
 
 export Body, Body2D, ground2D
@@ -21,9 +21,11 @@ t = symbols("t",nonnegative=true,real=true)
 abstract DynaMo
 abstract Body
 
+include("SymFloat.jl")
 include("util.jl")
-include("core.jl")
-include("timederiv.jl")
+include("connections2D.jl")
+# include("core.jl")
+# include("timederiv.jl")
 include("ground.jl")
 include("Body2D.jl")
 # include("Body3D.jl")

@@ -3,7 +3,7 @@ function statesyms(x::Array{ASCIIString,1})
   for i in eachindex(x)
     y[i] = symbols(x[i],real=true)
   end
-  return y
+  return SymFloat(y)
 end
 
 """
@@ -112,6 +112,9 @@ timederiv(x,model) same as timederiv(x,model) but with the info of the whole mod
 function timederiv(x::Array{SymPy.Sym})
   dxdt = diff(x,t)
 end
+function timederiv(x::SymPy.Sym)
+  dxdt = diff(x,t)
+end
 
 """
 Take time derivative of x, where subdiffout specifies what symbols in x depend on time.
@@ -127,7 +130,7 @@ julia> pos = x^2
 julia> vel = timederiv(pos,x,vx)
 2*x*vx
 """
-function timederiv(x::Array{SymPy.Sym},subdiffout::Array{SymPy.Sym,1},subin::Array{SymPy.Sym,1})
+function timederiv(x,subdiffout::Array{SymPy.Sym,1},subin::Array{SymPy.Sym,1})
   if length(subdiffout) != length(subin)
     error("subdiffout and subin must have same dimensions")
   end
@@ -141,13 +144,17 @@ function timederiv(x::Array{SymPy.Sym},subdiffout::Array{SymPy.Sym,1},subin::Arr
 
   # Substitute deriviative of subdiffout for diffin
   diffout = diff(subdiffoutT,t)
-  for i in diffout
+  for i in eachindex(diffout)
     dxdt = subs(dxdt,diffout[i],subin[i])
   end
 
   # remove time dependence
   return dxdt = subs(dxdt,subdiffoutT,subdiffout)
 end
+
+# function timederiv(x::SymPy.Sym,v...)
+#   return dxdt = timederiv([x],v...)
+# end
 
 function timederiv(x::Array{SymPy.Sym},body::Body)
   # the derivative of the position and velocity states are the velocity and accelerations
@@ -164,6 +171,14 @@ function subs(x,subin::Array,subout::Array)
   return y
 end
 
-# function timederiv(x::Array{SymPy.Sym},m::model)
-#
+function *(x::Array{ASCIIString},val::ASCIIString)
+  for i in eachindex(x)
+    x[i] = x[i]*val
+    println(x[i])
+  end
+  return x
+end
+
+# function convert(::Type{Array{Sym,1}},x::Sym)
+#   x = [Sym(x)]
 # end
