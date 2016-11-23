@@ -1,5 +1,5 @@
 @with_kw type DynaMo2D <: DynaMo
-  name::ASCIIString
+  name::String
   bodies::Vector{Body2D} = Body2D[]
   springs::Vector{Spring2D} = Spring2D[]
   phases::Vector{Phase} = Phase[]
@@ -15,8 +15,8 @@
   fulldim::Int = 3
 end
 
-function addBody(m::DynaMo2D,name::ASCIIString;parent::Body=ground2D,
-  connection::ASCIIString=free)
+function addBody(m::DynaMo2D,name::String;parent::Body=ground2D,
+  connection::String=free)
   body = Body2D(name,parent,connection)
   push!(m.bodies,body)
   return body

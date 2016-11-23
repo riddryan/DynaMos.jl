@@ -4,12 +4,18 @@ using SymPy
 
 # Test 2D ground
 g = ground2D()
-@test g.mass == Inf
-@test g.position == [0,0]
+@assert g.mass.val == Inf
+@assert g.position.val == [0,0]
 
-# Test hinge joint
-testname = "test"
-jointname = "hinge"
-sep = "_"
-h = Body2D(testname,g,jointname)
-@test h.connection == jointname
+# Test connections
+free2D("testbody")
+hinge2D("testbody")
+hingeslider2D("testbody")
+c1 = slider2D("testbody",[Sym(0),Sym(1)])
+sliderx2D("testbody")
+c2 = slidery2D("testbody")
+
+@test c1 == c2
+
+# Test bodies
+@newbody freebody ground2D free2D 0 0

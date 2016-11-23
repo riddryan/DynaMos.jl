@@ -8,109 +8,82 @@ Defines how body moves relative to its parent. OPTIONS:
 4) slider-x-y2 can translate in x & y
 5) hingeslider2 can rotate about z, and translate along the direction
 """
+type connection2D
+q::Array{Sym}
+u::Array{Sym}
+a::Array{Sym}
+L::Sym
+A::Sym
+position::Array{Sym}
+velocity::Array{Sym}
+angle::Sym
+angularvelocity::Sym
+end
 
-abstract connection2
+function connection2D(name::String,pnames::Array{String,1},L::Sym,A::Sym,pos::Array{Sym,1},
+  ang::Sym)
+  (q,u,a) = connectvars(pnames)
+  vel = timederiv(pos,q,u)
+  angvel = timederiv(ang,q,u)
+  return connection2D(q,u,a,L,A,pos,vel,ang,angvel)
+end
 
-function values{T<:connection2}(x::T)
+function connectvars(varnames::Array{String})
+  q= statesyms(varnames)
+  u = statesyms("v"*varnames)
+  a = statesyms("a"*varnames)
+  return q,u,a
+end
+
+function offsetvars(name::String)
+  L = symbols("L_"*name,real=true)
+  A = symbols("A_"*name,real=true)
+  return L, A
+end
+
+function values{T<:connection2D}(x::T)
   A = fieldnames(x)
   tuple([x.(A[i]) for i in eachindex(A)]...)
 end
-"""
-Body free to translate in x & y, rotate in z.
-"""
-type free2 <: connection2
-q::SymFloat
-u::SymFloat
-a::SymFloat
-L::SymFloat
-A::SymFloat
-position::SymFloat
-velocity::SymFloat
-angle::SymFloat
-angularvelocity::SymFloat
-end
 
-function free2()
-  free2("")
-end
-"""
-Supply name of the body to make variables distinct.
-"""
-function free2(name::ASCIIString)
-  q= statesyms(["x", "y", "a"]*"_"*name)
-  u = statesyms(["vx", "vy", "va"]*"_"*name)
-  a = statesyms(["ax", "ay", "aa"]*"_"*name)
+function free2D(name::String)
+  posvarnames = ["x","y","a"]*"_"*name
+  q = statesyms(posvarnames)
   L = Sym(0)
   A = Sym(0)
-  position = q[1:2]
-  velocity = u[1:2]
-  angle= q[3]
-  angularvelocity = u[3]
-  free2(q,u,a,L,A,position,velocity,angle,angularvelocity)
+  pos = q[1:2]
+  ang = q[3]
+  return connection2D(name,posvarnames,L,A,pos,ang)
 end
 
-"""
-Body rotates about z.
-"""
-type hinge2 <: connection2
-q::Vector{Sym}
-u::Vector{Sym}
-a::Vector{Sym}
-L::Sym
-A::Sym
-position::Vector{Sym}
-velocity::Vector{Sym}
-angle::Vector{Sym}
-angularvelocity::Vector{Sym}
-end
-
-function hinge2()
-   hinge2("")
-end
-"""
-Supply name of the body to make variables distinct.
-"""
-function hinge2(name::ASCIIString)
-  q= statesyms(["a"]*"_"*name)
-  u = statesyms(["va"]*"_"*name)
-  a = statesyms(["aa"]*"_"*name)
-  L = Sym("L_"*name)
+function hinge2D(name::String)
+  posvarnames = ["a_"*name]
+  q = statesyms(posvarnames)
+  L = symbols("L_"*name,real=true)
   A = Sym(0)
-  position = L*[cos(q[1]), sin(q[1])]
-  velocity = L*[-sin(q[1]), cos(q[1])]
-  angle= [q[1]]
-  angularvelocity = [u[1]]
+  pos = L*[cos(q[1]),sin(q[1])]
+  ang = q[1]
+  return connection2D(name,posvarnames,L,A,pos,ang)
 end
 
-"""
-Body rotates about z, and translates along that angle.
-"""
-type hingeslider2 <: connection2
-q::Vector{Sym}
-u::Vector{Sym}
-a::Vector{Sym}
-L::Sym
-A::Sym
-position::Vector{Sym}
-velocity::Vector{Sym}
-angle::Vector{Sym}
-angularvelocity::Vector{Sym}
-end
-
-function hingeslider2()
-   hingeslider2("")
-end
-"""
-Supply name of the body to make variables distinct.
-"""
-function hingeslider2(name::ASCIIString)
-  q= statesyms(["a","r"]*"_"*name)
-  u = statesyms(["va","vr"]*"_"*name)
-  a = statesyms(["aa","ar"]*"_"*name)
+function hingeslider2D(name::String)
+  posvarnames = ["a","r"]*"_"*name
+  q = statesyms(posvarnames)
   L = Sym(0)
   A = Sym(0)
-  position = q[2]*[cos(q[1]), sin(q[1])]
-  velocity = timederiv(position,q,u)
-  angle= [q[1]]
-  angularvelocity = [u[1]]
+  pos = q[2]*[cos(q[1]),sin(q[1])]
+  ang = q[1]
+  return connection2D(name,posvarnames,L,A,pos,ang)
 end
+
+function slider2D(name::String,ang::Sym)
+  posvarnames = ["r_"*name]
+  q = statesyms(posvarnames)
+  L = Sym(0)
+  A = Sym(0)
+  pos = q[1] *  [cos(ang), sin(ang)]
+  return connection2D(name,posvarnames,L,A,pos,ang)
+end
+
+sliderx2D(name::String) = slider2D(name,Sym(0))
+slidery2D(name::String) = slider2D(name,Sym(0))

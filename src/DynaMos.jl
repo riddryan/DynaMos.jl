@@ -8,12 +8,14 @@ module DynaMos
 using SymPy
 using ImmutableArrays
 using Parameters
-import Base.prepend!, Base.*, Base.getindex, Base.convert, Base.zeros
-import Base.size
+
+import Base: prepend!, *, getindex, convert, zeros, size, length, show, print, display
 import SymPy.subs, SymPy.symbols
 
 export Body, Body2D, ground2D
-export core_pos_2D, AddTimeDependence
+export connection2D, free2D, hinge2D, hingeslider2D, slider2D, sliderx2D, slidery2D
+export SymFloat
+export AddTimeDependence, timederiv
 export DynaMo, DynaMo2D, DynaMo3D
 
 # Define time
@@ -25,10 +27,10 @@ abstract Body
 include("SymFloat.jl")
 include("util.jl")
 include("connections2D.jl")
-# include("core.jl")
-# include("timederiv.jl")
+include("timederiv.jl")
 include("ground.jl")
 include("Body2D.jl")
+include("TimeDependentStates.jl")
 # include("Body3D.jl")
 # include("DynaMo2D.jl")
 
