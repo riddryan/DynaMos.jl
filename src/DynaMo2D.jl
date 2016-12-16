@@ -35,7 +35,7 @@ function MaximalMassMatrix(m::DynaMo)
 end
 
 function poseJacobian(m::DynaMo)
-  J = zeros(Sym,3*length(m.bodies),m.DOF)
+  J = zeros(SymFloat,3*length(m.bodies),m.DOF)
   for (i,body) in enumerate(m.bodies)
     J[m.fulldim*(i-1)+1:m.fulldim*i,:] = poseJacobian(body,m)
   end
