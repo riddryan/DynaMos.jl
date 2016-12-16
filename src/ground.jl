@@ -24,13 +24,16 @@ end
 function ground2D()
   g = ground2D(zeros(SymFloat,2),
   zeros(SymFloat,2),
-  SymFloat(Sym("mground"),Inf),
-  SymFloat(Sym("Iground"),Inf))
+  SymFloat(Sym(Inf),Inf),
+  SymFloat(Sym(Inf),Inf))
 
   return g
 end
 
 function ground3D()
   I = Sym("Iground")
-  return ground3D(zeros(SymFloat,3),zeros(SymFloat,3),SymFloat(Sym("mground"),Inf),SymFloat(diagM([I,I,I]),diagM([Inf,Inf,Inf])))
+  return ground3D(zeros(SymFloat,3),zeros(SymFloat,3),SymFloat(Sym(Inf),Inf),SymFloat(diagM([Inf,Inf,Inf]),diagM([Inf,Inf,Inf])))
 end
+
+==(b1::ground2D,b2::ground2D) = true
+==(b1::ground3D,b2::ground3D) = true

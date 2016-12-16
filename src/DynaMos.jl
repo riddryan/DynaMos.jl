@@ -9,7 +9,7 @@ using SymPy
 using ImmutableArrays
 using Parameters
 
-import Base: prepend!, *, getindex, convert, zeros, size, length, show, print, display
+import Base: prepend!, *, getindex, convert, zeros, size, length, ==, setindex!
 import SymPy.subs, SymPy.symbols
 
 export Body, Body2D, ground2D
@@ -17,6 +17,7 @@ export connection2D, free2D, hinge2D, hingeslider2D, slider2D, sliderx2D, slider
 export SymFloat
 export AddTimeDependence, timederiv
 export DynaMo, DynaMo2D, DynaMo3D
+export ==
 
 # Define time
 t = symbols("t",nonnegative=true,real=true)

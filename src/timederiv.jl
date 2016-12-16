@@ -60,5 +60,5 @@ end
 function timederiv(x::Array{SymPy.Sym},body::Body)
   # the derivative of the position and velocity states are the velocity and accelerations
   # respectively
-  return timederiv(x,[body.q, body.u],[body.u,body.a])
+  return timederiv(x,body.connection.q,body.connection.u)
 end

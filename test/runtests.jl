@@ -1,21 +1,24 @@
-using DynaMo
+using DynaMos
 using Base.Test
 using SymPy
 
 # Test 2D ground
 g = ground2D()
-@assert g.mass.val == Inf
+@assert g.mass.val == [Inf]
 @assert g.position.val == [0,0]
+@assert g == ground2D()
 
 # Test connections
-free2D("testbody")
-hinge2D("testbody")
-hingeslider2D("testbody")
-c1 = slider2D("testbody",[Sym(0),Sym(1)])
-sliderx2D("testbody")
-c2 = slidery2D("testbody")
+name = "testbody"
+free2D(name)
+hinge2D(name)
+hingeslider2D(name)
+c1 = slider2D(name,Sym(0))
+c2 = sliderx2D(name)
+slidery2D(name)
 
-@test c1 == c2
+@assert c1 == c2
 
-# Test bodies
-@newbody freebody ground2D free2D 0 0
+#Test bodies
+b = Body2D()
+@assert b == Body2D()

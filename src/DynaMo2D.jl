@@ -24,52 +24,60 @@ end
 
 function MaximalMassMatrix(m::DynaMo)
   N = length(m.bodies)*m.fulldim
-  M = zeros(Sym,N,N)
-  for i in m.bodies
-
-    M(
+  M = zeros(SymFloat,N,N)
+  for (i,body) in enumerate(m.bodies)
+    dex = m.dim*(i-1)+ 1
+    M[dex,dex] = body.mass
+    M[dex+1,dex+1] = body.mass
+    M[dex+2,dex+2] = body.inertia
   end
   return M
 end
 
-function VelocityJacobian(m::DynaMo)
+function poseJacobian(m::DynaMo)
   J = zeros(Sym,3*length(m.bodies),m.DOF)
   for (i,body) in enumerate(m.bodies)
-    J[m.fulldim*(i-1)+1:m.fulldim*i,:] = VelocityJacobian(body,m)
+    J[m.fulldim*(i-1)+1:m.fulldim*i,:] = poseJacobian(body,m)
   end
   return J
 end
 
-function VelocityJacobian(b::Body,m::DynaMo)
-  return vcat(TranslationVelocityJacobian(b,m),AngularVelocityJacobian(b,m))
+
+
+function poseJacobian(b::Body,m::DynaMo)
+  return vcat(translationVelocityJacobian(b,m),angularVelocityJacobian(b,m))
 end
 
-function AngularVelocityJacobian(m::DynaMo)
-  J = zeros(Sym,m.angdim*length(m.bodies),m.DOF)
+function poseJacobianDot(b::Body,m::DynaMo)
+  poseJacobianDot = timederiv(poseJacobian(b,m))
+end
+
+function angularVelocityJacobian(m::DynaMo)
+  J = zeros(SymFloat,m.angdim*length(m.bodies),m.DOF)
 
   for (i,body) in enumerate(m.bodies)
-    J[m.angdim*(i-1)+1:m.angdim*i,:] = AngularVelocityJacobian(body,m)
+    J[m.angdim*(i-1)+1:m.angdim*i,:] = angularVelocityJacobian(body,m)
   end
   return J
 end
 
-function AngularVelocityJacobian(b::Body,m::DynaMo)
-  return LinEq(b.angularvelocity,m.VelocityStates)
+function angularVelocityJacobian(b::Body,m::DynaMo)
+  return linEq(b.angularvelocity,b.connection.u)
 end
 
-function TranslationalVelocityJacobian(m::DynaMo)
-  J = zeros(Sym,m.dim*length(m.bodies),m.DOF)
+function translationalVelocityJacobian(m::DynaMo)
+  J = zeros(SymFloat,m.dim*length(m.bodies),m.DOF)
   for (i,body) in enumerate(m.bodies)
-    J[m.dim*(i-1)+1:m.dim*i,:] = TranslationalVelocityJacobian(body,m)
+    J[m.dim*(i-1)+1:m.dim*i,:] = translationalVelocityJacobian(body,m)
   end
   return J
 end
 
-function TranslationalVelocityJacobian(b::Body,m::DynaMo)
-  return LinEq(b.velocity,m.VelocityStates)
+function translationalVelocityJacobian(b::Body,m::DynaMo)
+  return linEq(b.velocity,b.connection.u)
 end
 
-function J = LinEq(M::Vector{Sym},x::Vector{Sym})
+function J = linEq(M::Vector{Sym},x::Vector{Sym})
   return [coeff(i,j) for i in M, j in x]
 end
 

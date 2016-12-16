@@ -28,6 +28,16 @@ function connection2D(name::String,pnames::Array{String,1},L::Sym,A::Sym,pos::Ar
   return connection2D(q,u,a,L,A,pos,vel,ang,angvel)
 end
 
+function ==(b1::connection2D,b2::connection2D)
+ f = (:L,:A,:position,:velocity,:angle,:angularvelocity)
+ for i in f
+   if getfield(b1,i) != getfield(b2,i)
+     return false
+   end
+ end
+ return true
+end
+
 function connectvars(varnames::Array{String})
   q= statesyms(varnames)
   u = statesyms("v"*varnames)
